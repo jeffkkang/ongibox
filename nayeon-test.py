@@ -6,9 +6,7 @@ pytesseract.pytesseract.tesseract_cmd = 'C:/Program Files/Tesseract-OCR/tesserac
 
 config=('-l kor --oem 3 --psm 6')
 
-
-image_file = 'C:/Users/김나연/Downloads/tesseract-test-image.jpg'
-image_path = 'C:/Users/김나연/Downloads/tesseract-test-image.jpg'
+image_path = 'C:/Users/김나연/Downloads/tesseract-test-image-3.jfif'
 img = np.array(Image.open(image_path))
 
 # OCR 실행 (문자열로 결과 반환)
