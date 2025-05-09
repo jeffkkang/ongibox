@@ -18,7 +18,7 @@ public class OcrService {
 
     private final RestTemplate restTemplate = new RestTemplate();
 
-    public String createModelResponse(String input){
+    public String createModelResponse(String imageUrl, String instructionPrompt){
         String url = "https://api.openai.com/v1/responses";
 
         HttpHeaders headers = new HttpHeaders();
@@ -28,10 +28,11 @@ public class OcrService {
         // 👇 Build content: input_text + input_image
         Map<String, Object> inputText = new HashMap<>();
         inputText.put("type", "input_text");
-        inputText.put("text", "");
+        String userPrompt = "Please transcribe this handwritten Korean letter and analyze it for emotional content.";
+        inputText.put("text", userPrompt);
 
         Map<String, Object> inputImage = new HashMap<>();
-        String imageUrl = "https://haja.net/files/attach/images/170/856/009/069e2c73692815323955ef70b3159cf7.jpg";
+//        imageUrl = "https://haja.net/files/attach/images/170/856/009/069e2c73692815323955ef70b3159cf7.jpg";
         inputImage.put("type", "input_image");
         inputImage.put("image_url", imageUrl);
 
@@ -46,11 +47,11 @@ public class OcrService {
         Map<String, Object> requestBody = new HashMap<>();
         requestBody.put("model", "gpt-4o");
         requestBody.put("input", List.of(userMessage));
-        String instruction_prompt = "You are not a medical professional and do not make diagnoses. " +
-                "You may describe tone, mood, or emotional language without making clinical judgments.  Please carefully transcribe the Korean handwriting and return:\n" +
-                "        1. Whether this looks like a dangerous mental health situation (Yes/No)\n" +
-                "        2. The transcribed text. the transcribed letter should be readable Korean Hangul characters.";
-        requestBody.put("instructions", instruction_prompt);
+//        instructionPrompt = "You are not a medical professional and do not make diagnoses. " +
+//                "You may describe tone, mood, or emotional language without making clinical judgments.  Please carefully transcribe the Korean handwriting and return:\n" +
+//                "        1. Whether this looks like a dangerous mental health situation (Yes/No)\n" +
+//                "        2. The transcribed text. the transcribed letter should be readable Korean Hangul characters.";
+        requestBody.put("instructions", instructionPrompt);
         requestBody.put("temperature", 0.7);
         requestBody.put("max_output_tokens", 300);
 
