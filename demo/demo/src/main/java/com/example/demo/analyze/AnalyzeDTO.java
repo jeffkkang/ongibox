@@ -1,4 +1,4 @@
-package com.example.demo.ocr;
+package com.example.demo.analyze;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Getter;
@@ -8,7 +8,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
-public class OcrRequest {
+public class AnalyzeDTO {
 
     @Schema(
             description = "Public image URL to be analyzed",
@@ -20,5 +20,5 @@ public class OcrRequest {
             description = "System prompt describing what the assistant should do",
             example = "You are not a medical professional and do not make diagnoses. You may describe tone, mood, or emotional language without making clinical judgments. Please carefully transcribe the Korean handwriting and return:\n 1. Whether this looks like a dangerous mental health situation (Yes/No)\n 2. The transcribed text. The transcribed letter should be readable Korean Hangul characters."
     )
-    public String instructionPrompt;
+    public String systemPrompt;
 }

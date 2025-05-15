@@ -1,17 +1,16 @@
-package com.example.demo.ocr.service;
+package com.example.demo.analyze.service;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @Service
-public class OcrService {
+public class AnalyzeService {
 
     @Value("${api.openai.key}")
     private String apiKey;
@@ -28,7 +27,7 @@ public class OcrService {
         // 👇 Build content: input_text + input_image
         Map<String, Object> inputText = new HashMap<>();
         inputText.put("type", "input_text");
-        String userPrompt = "Please transcribe this handwritten Korean letter and analyze it for emotional content.";
+        String userPrompt = "Please analyze the following letter for mental/emotional danger, and respond in the structured JSON format described in your instructions.";
         inputText.put("text", userPrompt);
 
         Map<String, Object> inputImage = new HashMap<>();
@@ -53,7 +52,7 @@ public class OcrService {
 //                "        2. The transcribed text. the transcribed letter should be readable Korean Hangul characters.";
         requestBody.put("instructions", instructionPrompt);
         requestBody.put("temperature", 0.7);
-        requestBody.put("max_output_tokens", 300);
+        requestBody.put("max_output_tokens", 500);
 
         HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
 
