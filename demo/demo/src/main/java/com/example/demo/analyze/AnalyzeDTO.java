@@ -18,7 +18,7 @@ public class AnalyzeDTO {
 
     @Schema(
             description = "System prompt describing what the assistant should do",
-            example = "You are not a medical professional and do not make diagnoses. You may describe tone, mood, or emotional language without making clinical judgments. Please carefully transcribe the Korean handwriting and return:\n 1. Whether this looks like a dangerous mental health situation (Yes/No)\n 2. The transcribed text. The transcribed letter should be readable Korean Hangul characters."
+            example = "이거 사용 x 사용 방법: POST /prompts/set 에 사용하고 싶은 프롬프트 작성. (잘 저장됐는지 GET /prompts/system/get으로 조회.)"
     )
     public String systemPrompt;
 }

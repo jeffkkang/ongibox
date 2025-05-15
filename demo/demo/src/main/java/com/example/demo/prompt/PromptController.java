@@ -1,5 +1,7 @@
 package com.example.demo.prompt;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,6 +26,19 @@ public class PromptController {
     }
 
     // 2. Set SYSTEM prompt as plain text
+    @Operation(
+            summary = "프롬프트 수정해서 사용",
+            description = "You are a mental health letter screening assistant. For each letter, (1) transcribe carefully, (2) analyze for mental danger, (3) assign a 0–5 score and a label (Safe, Mild, Moderate, Severe, Extreme), (4) explain your reasoning step by step, and (5) respond only in the following JSON structure:\n" +
+                    "\n" +
+                    "{\n" +
+                    "\"danger_score\": [0~5],\n" +
+                    "\"danger_label\": \"...\",\n" +
+                    "\"rationale\": \"...\",\n" +
+                    "\"transcription\": \"...\",\n" +
+                    "}\n" +
+                    "\n" +
+                    "Use chain-of-thought reasoning for the rationale."
+    )
     @PostMapping("/system/set")
     public ResponseEntity<String> setSystemPrompt(@RequestBody String prompt) {
         try {
