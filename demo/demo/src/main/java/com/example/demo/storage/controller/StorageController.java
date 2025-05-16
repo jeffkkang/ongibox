@@ -1,8 +1,5 @@
 package com.example.demo.storage.controller;
 
-import com.example.demo.storage.entity.Letter;
-import com.example.demo.storage.repository.LetterRepository;
-import com.example.demo.storage.service.StorageService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -11,45 +8,36 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.net.URL;
 import java.time.Duration;
-import java.util.UUID;
-
-// ...rest of your class
-
-
 
 @RestController
 @RequestMapping("/storage")
 @RequiredArgsConstructor
 public class StorageController {
 
-    private final StorageService storage;
-    private final LetterRepository repo;
+    private final com.example.demo.storage.StorageService storage;
 
-    /* --- Upload endpoint ------------------------------------------------- */
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<LetterDTO> upload(@RequestPart("file") MultipartFile file)
-            throws Exception {
+    /* ---------- upload & immediate URL ---------- */
+    @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<UploadResponse> upload(@RequestPart("file") MultipartFile file) throws Exception {
 
-        if (!file.getContentType().startsWith("image/")) {
-            return ResponseEntity.badRequest().body(null);
+        if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+            return ResponseEntity.badRequest().body(new UploadResponse(null, null, "Only image/* allowed"));
         }
-        UUID id  = UUID.randomUUID();
-        String key = storage.upload(file);         // stored in S3
 
-        repo.save(new Letter(id, key));
-        return ResponseEntity.ok(new LetterDTO(id));
+        String key = storage.upload(file);
+        URL url   = storage.presignedUrl(key, Duration.ofMinutes(10));
+
+        return ResponseEntity.ok(new UploadResponse(key, url.toString(), "OK"));
     }
 
-    /* --- Temp download URL ----------------------------------------------- */
-    @GetMapping("/{id}/image-url")
-    public ResponseEntity<String> getUrl(@PathVariable UUID id) {
-        Letter letter = repo.findById(id)
-                .orElseThrow(() -> new RuntimeException("Not found"));
-
-        URL url = storage.presignedGet(letter.getS3Key(), Duration.ofMinutes(10));
+    /* ---------- get a fresh presigned URL later ---------- */
+    @GetMapping("/url")
+    public ResponseEntity<String> getUrl(@RequestParam String key,
+                                         @RequestParam(defaultValue = "5") long minutes) {
+        URL url = storage.presignedUrl(key, Duration.ofMinutes(minutes));
         return ResponseEntity.ok(url.toString());
     }
 
-    /* Simple DTO */
-    private record LetterDTO(UUID id) {}
+    /* DTO */
+    private record UploadResponse(String key, String presignedUrl, String status) {}
 }

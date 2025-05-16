@@ -1,4 +1,4 @@
-package com.example.demo.storage.service;
+package com.example.demo.storage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -6,8 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.S3Client;
-import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectRequest;
 import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
@@ -24,36 +24,39 @@ public class StorageService {
     private final S3Client s3;
     private final S3Presigner presigner;
 
-    @Value("${s3.bucket}") private String bucket;
-    @Value("${s3.prefix}") private String prefix;
+    @Value("${s3.bucket}") String bucket;
+    @Value("${s3.prefix}") String prefix;
 
+    // 1) upload file, return the S3 object key
     public String upload(MultipartFile file) throws IOException {
-        String key = prefix + UUID.randomUUID() + "-" + sanitize(file.getOriginalFilename());
+        String safeName = sanitize(file.getOriginalFilename());
+        String key = prefix + UUID.randomUUID() + "-" + safeName;
 
-        PutObjectRequest putReq = PutObjectRequest.builder()
+        PutObjectRequest put = PutObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
                 .contentType(file.getContentType())
                 .build();
 
         try (InputStream in = file.getInputStream()) {
-            s3.putObject(putReq, RequestBody.fromInputStream(in, file.getSize()));
+            s3.putObject(put, RequestBody.fromInputStream(in, file.getSize()));
         }
         return key;
     }
 
-    public URL presignedGet(String key, Duration ttl) {
-        GetObjectRequest getReq = GetObjectRequest.builder()
+    // 2) presigned GET url (private bucket)
+    public URL presignedUrl(String key, Duration ttl) {
+        GetObjectRequest get = GetObjectRequest.builder()
                 .bucket(bucket)
                 .key(key)
                 .build();
 
-        GetObjectPresignRequest psReq = GetObjectPresignRequest.builder()
-                .getObjectRequest(getReq)
+        GetObjectPresignRequest ps = GetObjectPresignRequest.builder()
+                .getObjectRequest(get)
                 .signatureDuration(ttl)
                 .build();
 
-        return presigner.presignGetObject(psReq).url();
+        return presigner.presignGetObject(ps).url();
     }
 
     private String sanitize(String name) {
