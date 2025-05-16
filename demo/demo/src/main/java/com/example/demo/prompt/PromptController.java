@@ -1,8 +1,11 @@
 package com.example.demo.prompt;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -15,8 +18,10 @@ public class PromptController {
     private PromptService promptService;
 
     // 1. Upload or update SYSTEM prompt as file
-    @PostMapping("/system/upload")
-    public ResponseEntity<String> uploadSystemPrompt(@RequestParam("file") MultipartFile file) {
+    @PostMapping(value = "/system/upload" ,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadSystemPrompt(
+            @Parameter(description = "Upload file", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+            @RequestParam("file") MultipartFile file) {
         try {
             promptService.saveSystemPrompt(file);
             return ResponseEntity.ok("System prompt uploaded successfully.");
@@ -61,8 +66,10 @@ public class PromptController {
     }
 
     // 4. (Optional) Upload USER prompt as file
-    @PostMapping("/user/upload")
-    public ResponseEntity<String> uploadUserPrompt(@RequestParam("file") MultipartFile file) {
+    @PostMapping(value = "/user/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadUserPrompt(
+            @Parameter(description = "Upload a user prompt text file", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+            @RequestParam("file") MultipartFile file) {
         try {
             promptService.saveUserPrompt(file);
             return ResponseEntity.ok("User prompt uploaded successfully.");

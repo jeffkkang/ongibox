@@ -22,7 +22,7 @@ public class PromptService {
     public void initPaths() {
         this.SYSTEM_PROMPT_PATH = Paths.get(baseDir, "system-prompt.txt");
         this.USER_PROMPT_PATH   = Paths.get(baseDir, "user-prompt.txt");
-        System.out.println(SYSTEM_PROMPT_PATH);
+        System.out.println("system-prompt path: " + SYSTEM_PROMPT_PATH);
     }
 
     // Save system prompt as file
