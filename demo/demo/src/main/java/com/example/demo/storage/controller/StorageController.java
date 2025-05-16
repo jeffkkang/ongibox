@@ -1,5 +1,6 @@
 package com.example.demo.storage.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +18,7 @@ public class StorageController {
     private final com.example.demo.storage.StorageService storage;
 
     /* ---------- upload & immediate URL ---------- */
+    @Operation(summary = "should upload only image files")
     @PostMapping(path = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<UploadResponse> upload(@RequestPart("file") MultipartFile file) throws Exception {
 
