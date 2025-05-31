@@ -2,6 +2,7 @@ package com.example.demo.analyze.controller;
 
 import com.example.demo.analyze.AnalyzeDTO;
 import com.example.demo.analyze.service.AnalyzeService;
+import com.example.demo.analyze.service.OllamaService;
 import com.example.demo.prompt.PromptService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -20,11 +21,13 @@ public class AnalyzeController {
     private final PromptService promptService;
 
     private final AnalyzeService analyzeService;
+    private final OllamaService ollamaService;
 
     public AnalyzeController(AnalyzeService analyzeService,
-                             PromptService promptService) {
+                             PromptService promptService, OllamaService ollamaService) {
         this.analyzeService = analyzeService;
         this.promptService = promptService;
+        this.ollamaService = ollamaService;
     }
 
 //    public String clean(String input) {
@@ -68,6 +71,15 @@ public class AnalyzeController {
 
         return ResponseEntity.ok(text);
     }
+
+    @PostMapping("/generate-ollama")
+    public ResponseEntity<String> generateResponse(@RequestBody String text) {
+        String model = "tinyllama";
+        String result = ollamaService.generate(text, model);
+        return ResponseEntity.ok(result);
+    }
+
+
 
 
 }

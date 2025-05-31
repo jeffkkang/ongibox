@@ -80,7 +80,9 @@ public class PromptController {
 
     // 5. Set USER prompt as plain text
     @PostMapping("/user/set")
-    public ResponseEntity<String> setUserPrompt(@RequestBody String prompt) {
+    public ResponseEntity<String> setUserPrompt(
+            @Parameter(description = "Upload a user prompt by string.")
+            @RequestBody String prompt) {
         try {
             promptService.saveUserPrompt(prompt);
             return ResponseEntity.ok("User prompt set.");
