@@ -30,12 +30,6 @@ public class AnalyzeController {
         this.ollamaService = ollamaService;
     }
 
-//    public String clean(String input) {
-//        return Optional.ofNullable(input)
-//                .map(s -> s.trim().replaceAll("[\\p{C}]", ""))
-//                .orElse("");
-//    }
-
     @Operation(
             summary = "Generate text with OpenAI (사진은 공개된 인터넷 링크만 가능 현재는)",
             description = "Analyze image with OpenAI GPT-4o\", description = \"Send image URL and system prompt to OpenAI for emotional transcription/classification.",
