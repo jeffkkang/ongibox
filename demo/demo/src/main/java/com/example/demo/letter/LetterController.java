@@ -1,5 +1,6 @@
 package com.example.demo.letter;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -95,6 +96,35 @@ public class LetterController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // 400 for missing OCR text
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during PII removal process: " + e.getMessage());
+        }
+    }
+
+    @Operation(
+            summary = "Trigger danger analysis process for a specific letter",
+            description = "Initiates the mental/emotional danger analysis process using an LLM. " +
+                    "Requires either 'llmRefinedText' or 'ocrText' to be present. " +
+                    "Updates 'dangerScore', 'dangerLabel', 'rationale', and 'falsePositiveScore'.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Analysis completed, letter updated."),
+                    @ApiResponse(responseCode = "404", description = "Letter not found with the given ID."),
+                    @ApiResponse(responseCode = "400", description = "No text available for analysis."),
+                    @ApiResponse(responseCode = "500", description = "LLM response parsing failed or other internal error.")
+            }
+    )
+    @PostMapping("/{id}/trigger-analysis")
+    public ResponseEntity<?> triggerAnalysisForLetter(
+            @Parameter(description = "ID of the letter to process") @PathVariable Long id) {
+        try {
+            Letter updatedLetter = letterService.triggerAnalysisProcessing(id);
+            return ResponseEntity.ok(updatedLetter);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (JsonProcessingException e) { // Catch specific JSON parsing errors
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to parse LLM analysis response: " + e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during analysis process: " + e.getMessage());
         }
     }
 

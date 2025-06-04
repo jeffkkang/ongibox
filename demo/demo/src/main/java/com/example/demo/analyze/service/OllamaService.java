@@ -3,7 +3,7 @@ package com.example.demo.analyze.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
+import org.springframework.web.client.RestTemplate; // Keep this import
 
 import java.util.HashMap;
 import java.util.Map;
@@ -12,8 +12,13 @@ import java.util.Map;
 @Service
 public class OllamaService {
     private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
-    private final RestTemplate restTemplate = new RestTemplate();
+    private final RestTemplate restTemplate; // This will now be injected
     private final ObjectMapper objectMapper = new ObjectMapper();
+
+    // Modify constructor to accept the injected RestTemplate
+    public OllamaService(RestTemplate restTemplate) {
+        this.restTemplate = restTemplate;
+    }
 
     public String generate(String prompt, String model) {
         Map<String, Object> request = new HashMap<>();
@@ -22,10 +27,13 @@ public class OllamaService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        // It's also good practice to ensure the request body itself is UTF-8,
+        // though Spring's default behavior for MediaType.APPLICATION_JSON usually handles this.
+        // headers.setContentType(new MediaType(MediaType.APPLICATION_JSON, StandardCharsets.UTF_8));
+
 
         HttpEntity<Map<String, Object>> entity = new HttpEntity<>(request, headers);
 
-        // 바뀐 부분: String.class로 응답 받기!
         ResponseEntity<String> response = restTemplate.postForEntity(OLLAMA_URL, entity, String.class);
 
         if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
@@ -45,7 +53,10 @@ public class OllamaService {
                 return "Parse error: " + e.getMessage();
             }
         } else {
-            return "Error: " + response.getStatusCode();
+            // Added more detail to error message for better debugging
+            System.err.println("Ollama Error Response Status: " + response.getStatusCode());
+            System.err.println("Ollama Error Response Body: " + response.getBody());
+            return "Error: " + response.getStatusCode() + " - " + response.getBody();
         }
     }
 }
