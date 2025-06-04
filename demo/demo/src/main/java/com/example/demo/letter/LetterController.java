@@ -1,7 +1,10 @@
 package com.example.demo.letter;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import jakarta.persistence.EntityNotFoundException; // Make sure to import this if you handle it directly
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -48,5 +51,25 @@ public class LetterController {
         return new ResponseEntity<>(newLetter, HttpStatus.CREATED); // Return 201 Created status
     }
 
+    @Operation(
+            summary = "Trigger OCR process for a specific letter",
+            description = "Initiates a simulated OCR process for the letter identified by its ID. " +
+                    "The letter's 'ocrText' field will be populated with hardcoded sample text. " +
+                    "This simulates text extraction from the letter's image.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "OCR process completed, letter updated."),
+                    @ApiResponse(responseCode = "404", description = "Letter not found with the given ID.")
+            }
+    )
+    @PostMapping("/{id}/trigger-ocr")
+    public ResponseEntity<?> triggerOcrForLetter(
+            @Parameter(description = "ID of the letter to process") @PathVariable Long id) {
+        try {
+            Letter updatedLetter = letterService.triggerOcrProcessing(id);
+            return ResponseEntity.ok(updatedLetter);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
+    }
 
 }
