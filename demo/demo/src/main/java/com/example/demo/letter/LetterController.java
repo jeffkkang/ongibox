@@ -77,11 +77,12 @@ public class LetterController {
             summary = "Trigger PII removal process for a specific letter",
             description = "Initiates the PII (Personal Identifiable Information) removal process. " +
                     "Requires 'ocrText' to be present. The 'llmRefinedText' field will be updated " +
-                    "with the redacted version using a simulated LLM call via OllamaService.",
+                    "with the redacted version using an LLM (Ollama). The prompt is fetched from /prompts/pii.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "PII removal completed, letter updated."),
                     @ApiResponse(responseCode = "404", description = "Letter not found with the given ID."),
-                    @ApiResponse(responseCode = "400", description = "OCR text not available for PII removal.")
+                    @ApiResponse(responseCode = "400", description = "OCR text not available or PII prompt not set."),
+                    @ApiResponse(responseCode = "500", description = "Error during PII removal process.")
             }
     )
     @PostMapping("/{id}/trigger-pii-removal")
@@ -93,21 +94,21 @@ public class LetterController {
         } catch (EntityNotFoundException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // 400 for missing OCR text
-        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (Exception e) { // Catch Exception from PromptService or other errors
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during PII removal process: " + e.getMessage());
         }
     }
 
     @Operation(
             summary = "Trigger danger analysis process for a specific letter",
-            description = "Initiates the mental/emotional danger analysis process using an LLM. " +
+            description = "Initiates the mental/emotional danger analysis process using an LLM (Ollama). " +
                     "Requires either 'llmRefinedText' or 'ocrText' to be present. " +
-                    "Updates 'dangerScore', 'dangerLabel', 'rationale', and 'falsePositiveScore'.",
+                    "Updates 'dangerScore', 'dangerLabel', 'rationale', and 'falsePositiveScore'. The prompt is fetched from /prompts/analysis.",
             responses = {
                     @ApiResponse(responseCode = "200", description = "Analysis completed, letter updated."),
                     @ApiResponse(responseCode = "404", description = "Letter not found with the given ID."),
-                    @ApiResponse(responseCode = "400", description = "No text available for analysis."),
+                    @ApiResponse(responseCode = "400", description = "No text available for analysis or Analysis prompt not set."),
                     @ApiResponse(responseCode = "500", description = "LLM response parsing failed or other internal error.")
             }
     )
@@ -121,9 +122,9 @@ public class LetterController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (IllegalStateException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-        } catch (JsonProcessingException e) { // Catch specific JSON parsing errors
+        } catch (JsonProcessingException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to parse LLM analysis response: " + e.getMessage());
-        } catch (Exception e) {
+        } catch (Exception e) { // Catch Exception from PromptService or other errors
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during analysis process: " + e.getMessage());
         }
     }

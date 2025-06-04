@@ -17,7 +17,7 @@ public class PromptController {
     @Autowired
     private PromptService promptService;
 
-    // 1. Upload or update SYSTEM prompt as file
+    // --- Existing System Prompt Endpoints ---
     @PostMapping(value = "/system/upload" ,consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadSystemPrompt(
             @Parameter(description = "Upload file", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
@@ -30,19 +30,9 @@ public class PromptController {
         }
     }
 
-    // 2. Set SYSTEM prompt as plain text
     @Operation(
-            summary = "프롬프트 수정해서 사용",
-            description = "You are a mental health letter screening assistant. For each letter, (1) transcribe carefully, (2) analyze for mental danger, (3) assign a 0–5 score and a label (Safe, Mild, Moderate, Severe, Extreme), (4) explain your reasoning step by step, and (5) respond only in the following JSON structure:\n" +
-                    "\n" +
-                    "{\n" +
-                    "\"danger_score\": [0~5],\n" +
-                    "\"danger_label\": \"...\",\n" +
-                    "\"rationale\": \"...\",\n" +
-                    "\"transcription\": \"...\",\n" +
-                    "}\n" +
-                    "\n" +
-                    "Use chain-of-thought reasoning for the rationale."
+            summary = "Set System Prompt (for OpenAI image analysis - previously used)",
+            description = "Sets the system prompt for the OpenAI GPT-4o image analysis. Example: You are a mental health letter screening assistant..."
     )
     @PostMapping("/system/set")
     public ResponseEntity<String> setSystemPrompt(@RequestBody String prompt) {
@@ -54,7 +44,6 @@ public class PromptController {
         }
     }
 
-    // 3. Get current SYSTEM prompt
     @GetMapping("/system")
     public ResponseEntity<String> getSystemPrompt() {
         try {
@@ -65,7 +54,7 @@ public class PromptController {
         }
     }
 
-    // 4. (Optional) Upload USER prompt as file
+    // --- Existing User Prompt Endpoints ---
     @PostMapping(value = "/user/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<String> uploadUserPrompt(
             @Parameter(description = "Upload a user prompt text file", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
@@ -78,7 +67,6 @@ public class PromptController {
         }
     }
 
-    // 5. Set USER prompt as plain text
     @PostMapping("/user/set")
     public ResponseEntity<String> setUserPrompt(
             @Parameter(description = "Upload a user prompt by string.")
@@ -91,7 +79,6 @@ public class PromptController {
         }
     }
 
-    // 6. Get current USER prompt
     @GetMapping("/user")
     public ResponseEntity<String> getUserPrompt() {
         try {
@@ -99,6 +86,80 @@ public class PromptController {
             return ResponseEntity.ok(prompt);
         } catch (Exception e) {
             return ResponseEntity.status(404).body("User prompt not found.");
+        }
+    }
+
+    // --- NEW: PII Prompt Endpoints ---
+    @Operation(
+            summary = "Set PII Removal Prompt",
+            description = "Sets the prompt for the LLM PII (Personal Identifiable Information) removal process. Example: Redact personal information..."
+    )
+    @PostMapping("/pii/set")
+    public ResponseEntity<String> setPiiPrompt(@RequestBody String prompt) {
+        try {
+            promptService.savePiiPrompt(prompt);
+            return ResponseEntity.ok("PII prompt set.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to set PII prompt: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/pii")
+    public ResponseEntity<String> getPiiPrompt() {
+        try {
+            String prompt = promptService.getPiiPrompt();
+            return ResponseEntity.ok(prompt);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body("PII prompt not found.");
+        }
+    }
+
+    @PostMapping(value = "/pii/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadPiiPrompt(
+            @Parameter(description = "Upload a PII prompt text file", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+            @RequestParam("file") MultipartFile file) {
+        try {
+            promptService.savePiiPrompt(file);
+            return ResponseEntity.ok("PII prompt uploaded successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to upload PII prompt: " + e.getMessage());
+        }
+    }
+
+    // --- NEW: Analysis Prompt Endpoints ---
+    @Operation(
+            summary = "Set Analysis Prompt",
+            description = "Sets the prompt for the LLM mental danger analysis process. Example: You are a mental health letter screening assistant. Provide JSON output..."
+    )
+    @PostMapping("/analysis/set")
+    public ResponseEntity<String> setAnalysisPrompt(@RequestBody String prompt) {
+        try {
+            promptService.saveAnalysisPrompt(prompt);
+            return ResponseEntity.ok("Analysis prompt set.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to set Analysis prompt: " + e.getMessage());
+        }
+    }
+
+    @GetMapping("/analysis")
+    public ResponseEntity<String> getAnalysisPrompt() {
+        try {
+            String prompt = promptService.getAnalysisPrompt();
+            return ResponseEntity.ok(prompt);
+        } catch (Exception e) {
+            return ResponseEntity.status(404).body("Analysis prompt not found.");
+        }
+    }
+
+    @PostMapping(value = "/analysis/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<String> uploadAnalysisPrompt(
+            @Parameter(description = "Upload an analysis prompt text file", content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE))
+            @RequestParam("file") MultipartFile file) {
+        try {
+            promptService.saveAnalysisPrompt(file);
+            return ResponseEntity.ok("Analysis prompt uploaded successfully.");
+        } catch (Exception e) {
+            return ResponseEntity.status(500).body("Failed to upload analysis prompt: " + e.getMessage());
         }
     }
 }
