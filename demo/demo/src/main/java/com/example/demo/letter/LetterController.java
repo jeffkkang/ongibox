@@ -72,4 +72,30 @@ public class LetterController {
         }
     }
 
+    @Operation(
+            summary = "Trigger PII removal process for a specific letter",
+            description = "Initiates the PII (Personal Identifiable Information) removal process. " +
+                    "Requires 'ocrText' to be present. The 'llmRefinedText' field will be updated " +
+                    "with the redacted version using a simulated LLM call via OllamaService.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "PII removal completed, letter updated."),
+                    @ApiResponse(responseCode = "404", description = "Letter not found with the given ID."),
+                    @ApiResponse(responseCode = "400", description = "OCR text not available for PII removal.")
+            }
+    )
+    @PostMapping("/{id}/trigger-pii-removal")
+    public ResponseEntity<?> triggerPiiRemovalForLetter(
+            @Parameter(description = "ID of the letter to process") @PathVariable Long id) {
+        try {
+            Letter updatedLetter = letterService.triggerPiiRemovalProcessing(id);
+            return ResponseEntity.ok(updatedLetter);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage()); // 400 for missing OCR text
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error during PII removal process: " + e.getMessage());
+        }
+    }
+
 }
