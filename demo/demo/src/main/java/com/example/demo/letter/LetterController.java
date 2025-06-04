@@ -129,4 +129,32 @@ public class LetterController {
         }
     }
 
+    @Operation(
+            summary = "Flag a letter as manually reviewed for danger",
+            description = "Updates the 'humanReviewedDanger' flag for a specific letter by providing a boolean query parameter. " +
+                    "This does not alter AI-generated scores or labels.",
+            responses = {
+                    @ApiResponse(responseCode = "200", description = "Manual review flag updated successfully."),
+                    @ApiResponse(responseCode = "404", description = "Letter not found with the given ID."),
+                    @ApiResponse(responseCode = "400", description = "Invalid input (e.g., 'humanReviewedDanger' parameter is missing or malformed).")
+            }
+    )
+    @PutMapping("/{id}/manual-review")
+    public ResponseEntity<?> updateManualReviewForLetter(
+            @Parameter(description = "ID of the letter to update") @PathVariable Long id,
+            @Parameter(description = "True if the letter has been manually reviewed for danger, false otherwise.")
+            @RequestParam Boolean humanReviewedDanger) { // Changed from @RequestBody DTO to @RequestParam Boolean
+        // Spring handles null check if Boolean is not primitive 'boolean'
+        // If humanReviewedDanger is null (parameter not provided), Spring will throw MissingServletRequestParameterException
+        // which your GlobalExceptionHandler or default Spring error handling will catch.
+        try {
+            Letter updatedLetter = letterService.updateHumanReviewedDanger(id, humanReviewedDanger);
+            return ResponseEntity.ok(updatedLetter);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating manual review status: " + e.getMessage());
+        }
+    }
+
 }

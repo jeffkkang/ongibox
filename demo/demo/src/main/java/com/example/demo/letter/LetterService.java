@@ -124,4 +124,13 @@ public class LetterService {
 
         return letterRepository.save(letter);
     }
+
+    @Transactional
+    public Letter updateHumanReviewedDanger(Long letterId, Boolean humanReviewed) {
+        Letter letter = letterRepository.findById(letterId)
+                .orElseThrow(() -> new EntityNotFoundException("Letter not found with id: " + letterId));
+
+        letter.setHumanReviewedDanger(humanReviewed);
+        return letterRepository.save(letter);
+    }
 }
