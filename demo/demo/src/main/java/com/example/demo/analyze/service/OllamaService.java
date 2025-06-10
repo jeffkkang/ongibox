@@ -1,6 +1,7 @@
 package com.example.demo.analyze.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate; // Keep this import
@@ -11,7 +12,7 @@ import java.util.Map;
 
 @Service
 public class OllamaService {
-    private static final String OLLAMA_URL = "http://localhost:11434/api/generate";
+    @Value("${ollama.url}") String OLLAMA_URL;
     private final RestTemplate restTemplate; // This will now be injected
     private final ObjectMapper objectMapper = new ObjectMapper();
 

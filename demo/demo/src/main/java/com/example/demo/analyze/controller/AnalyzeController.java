@@ -68,7 +68,7 @@ public class AnalyzeController {
 
     @PostMapping("/generate-ollama")
     public ResponseEntity<String> generateResponse(@RequestBody String text) {
-        String model = "tinyllama";
+        String model = "llama3";
         String result = ollamaService.generate(text, model);
         return ResponseEntity.ok(result);
     }

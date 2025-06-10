@@ -34,6 +34,21 @@ public class LetterController {
     }
 
     @Operation(
+            summary = "Get a letter by id",
+            description = "Retrieves a single letter identified by its id"
+    )
+    @GetMapping("/{id}")
+    public ResponseEntity<Letter> getLetterById(@PathVariable Long id) {
+        try {
+            Letter letter = letterService.getLetterById(id);
+            return ResponseEntity.ok(letter);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
+
+
+    @Operation(
             summary = "Manually add a new letter entry",
             description = "Allows manual creation of a letter record by providing S3 key and OCR text. Other fields will be null initially.",
             responses = {
