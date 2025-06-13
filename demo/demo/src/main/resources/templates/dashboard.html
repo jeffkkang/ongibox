@@ -2,564 +2,258 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>편지 처리 대시보드</title>
-    <!-- Favicon (optional, but good for professional look) -->
-    <link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAMAAAAoLQ9TAAAAQlBMVEUAAAD/iwD/kQD/lQD/mAD/ngD/oQD/owD/pQD/qwD/rQD/rwD/sQD/sQD/tQD/tQD/uwD/uQD/vQD/vQD/wQD/wQCrj1bXAAAAC3RSTlMAAQIDBAUGBwgJCgsQ4Xw4kAAAAHVJREFUCNdjYGCQBYyMjAwMjAyMjAwYGBhYGNgYEhMDhUGBoYFhEGRmYWBgYWJiZmBhYWFhRkZhZmNgAQZGVhZWBi4ubh5eXnw+ABoYGFoFw9zCwsLKzMzKzs7Ozg4AwMDY2MDR0dHJzckBA4Ojo4uLi5uXl5+fngAGRgY2FjYhIYGhoWFhYWFhYWHh5+fg4AGRgYWBh4hISGhoaGhoWFhoWFhYWHOAQYGBhYWPhERGRkZGRkYWBhYWFlYGBhYWBhYAFmYGBhYWFjY2NlZWVlZmZmZ2dnZ+fn5+fn5+fn5+fn5AAAg8mNjYGCwcHCgoKCgnA/iB9wLDBwMDQyMTE0tbW1tbW1tYGEwMDYGBhY2VlZWVkZGRmZWVnZ2dgYWNjY0AwMzW1tbW1tY2Nvb29vb21tY2NvbW1tY2NlZWVmZmVlYWFhYWFhYWFhZmZmZ2dnZ2dnZ+fn5+fn5+fn5+fn58ZABIAgQIAAAAgCAAAAAAAACAAFAAMAAqgCjAAAAAElFTkSuQmCC" />
-
-    <!-- Bootstrap CSS -->
+    <title>편지 업로드</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Google Fonts for Noto Sans KR (Korean) and Inter (English/Numbers) -->
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    <!-- Bootstrap Icons (for a professional look) -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500&family=Inter:wght@400;500&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary-yellow: #ffe066;
-            --light-yellow: #fff7d0;
-            --bg-light: #f8f9fa;
-            --sidebar-bg: #ffffff; /* Brighter white for sidebar */
-            --text-dark: #343a40;
-            --text-muted: #6c757d;
-            --border-light: #e9ecef;
-            --shadow-light: rgba(0, 0, 0, 0.08);
-            --card-shadow: rgba(0, 0, 0, 0.05);
+            --yellow: #ffe066;
         }
-
         body {
             font-family: 'Inter', 'Noto Sans KR', sans-serif;
-            background-color: var(--bg-light);
-            color: var(--text-dark);
-            min-height: 100vh;
-            display: flex; /* Use flex to control sidebar and content */
+            background-color: #f8f9fa;
+            overflow-x: hidden; /* Prevent horizontal overflow */
         }
-
         .sidebar {
-            width: 260px; /* Slightly wider for better spacing */
-            background-color: var(--sidebar-bg);
-            box-shadow: 2px 0 10px var(--shadow-light);
-            padding: 1.5rem 0; /* Vertical padding */
-            display: flex;
-            flex-direction: column;
-            align-items: center; /* Center items horizontally */
+            width: 220px;
+            background-color: #f5f5f5;
+            min-height: 100vh;
+            box-shadow: 2px 0 5px rgba(0,0,0,0.05);
         }
-
-        .sidebar-logo {
-            margin-bottom: 2.5rem; /* More space below logo */
-            color: var(--primary-yellow); /* Color the envelope icon */
-        }
-
         .sidebar .nav-link {
-            color: var(--text-dark);
-            padding: 0.85rem 1.5rem; /* Adjust padding */
-            margin-bottom: 0.5rem;
-            width: 100%; /* Make links take full width */
-            text-align: center; /* Center text in nav links */
-            transition: background-color 0.2s ease, color 0.2s ease, font-weight 0.2s ease;
+            color: #333;
         }
-
-        .sidebar .nav-link:hover {
-            background-color: var(--border-light); /* Subtle hover effect */
-            color: var(--text-dark);
+        .wrapper {
+            max-width: 100vw;
+            margin: 0 auto;
+            display: flex;
+            flex-wrap: wrap;   /* Allow sidebar/content to stack if needed */
         }
-
         .sidebar .nav-link.active {
-            background-color: var(--primary-yellow);
+            background-color: var(--yellow);
             font-weight: 500;
-            color: var(--text-dark); /* Ensure text is dark on yellow */
-            border-radius: 8px; /* Slightly rounded corners */
-            box-shadow: 0 4px 8px rgba(255, 224, 102, 0.3); /* Subtle shadow for active item */
         }
-
-        .main-content {
-            flex-grow: 1;
-            padding: 2.5rem; /* Generous padding */
-            background-color: var(--bg-light);
-        }
-
-        h3 {
-            font-weight: 700; /* Bold titles */
-            color: var(--text-dark);
-        }
-
-        .text-muted {
-            color: var(--text-muted) !important;
-        }
-
-        /* General Card Styling */
-        .card-panel {
-            background-color: #fff;
-            border-radius: 12px; /* More rounded corners for cards */
-            box-shadow: 0 4px 15px var(--card-shadow); /* More pronounced shadow for depth */
-            padding: 2rem; /* Generous padding inside cards */
-            border: none; /* Remove default bootstrap border */
-            transition: transform 0.2s ease;
-        }
-        .card-panel:hover {
-            transform: translateY(-2px); /* Slight lift on hover */
-        }
-
-        /* Specific Prompts Box Styling */
-        .prompt-box {
-            background-color: var(--light-yellow); /* Lighter yellow for prompts */
-            border-radius: 10px;
-            padding: 1.5rem;
-            box-shadow: 0 3px 10px rgba(0, 0, 0, 0.08); /* Consistent shadow */
-            height: 100%; /* Ensure boxes fill height in grid */
-            display: flex;
-            flex-direction: column;
-        }
-        .prompt-box h6 {
-            font-weight: 600;
-            margin-bottom: 1rem;
-        }
-        .prompt-box pre {
-            background-color: transparent; /* No background for pre */
-            border: none;
-            padding: 0;
-            margin: 0;
-            font-size: 0.9em; /* Smaller font for prompt text */
-            color: #555;
-            white-space: pre-wrap; /* Ensure text wraps */
-            flex-grow: 1; /* Allow content to grow */
-            overflow: auto; /* Scroll if content overflows */
-        }
-
-
-        /* File Upload Dropzone */
-        #dropzone {
-            border: 2px dashed var(--border-light); /* Lighter dashed border */
-            border-radius: 12px; /* Consistent rounded corners */
-            background-color: #fff;
-            padding: 3rem; /* More padding for a spacious feel */
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 15px var(--card-shadow); /* Consistent card shadow */
-        }
-        #dropzone:hover {
-            border-color: var(--primary-yellow);
-            background-color: #fcfcfc;
-        }
-        #dropzone.highlight {
-            border-color: var(--primary-yellow);
-            background-color: #fdfae7;
-        }
-        #dropzone .icon-container {
-            width: 80px; /* Larger icon container */
-            height: 80px;
-            background-color: var(--light-yellow);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 1.5rem; /* Center and add margin */
-            box-shadow: 0 2px 8px rgba(255, 224, 102, 0.3);
-        }
-        #dropzone .icon-container svg {
-            color: var(--primary-yellow);
-            font-size: 2.5rem; /* Larger icon */
-        }
-        #dropzone p {
-            font-size: 1.1rem; /* Slightly larger text */
-            color: var(--text-dark);
-            margin-bottom: 0.5rem;
-        }
-        #dropzone a {
-            color: #007bff; /* Standard link color */
-            font-weight: 500;
-            text-decoration: none;
-        }
-        #dropzone a:hover {
-            text-decoration: underline;
-        }
-
-        /* Progress Bar */
-        .progress {
-            height: 8px; /* Thinner progress bar */
-            background-color: var(--border-light);
-            border-radius: 4px;
-        }
-        .progress-bar {
-            background-color: var(--primary-yellow);
-            border-radius: 4px;
-        }
-        #progressText {
-            font-size: 0.95rem;
-            color: var(--text-muted);
-        }
-
-        /* Buttons */
         .btn-yellow {
-            background-color: var(--primary-yellow);
-            border-color: var(--primary-yellow);
-            color: var(--text-dark);
-            font-weight: 500;
-            padding: 0.6rem 1.5rem; /* Standard button padding */
-            border-radius: 8px; /* Consistent border radius */
-            box-shadow: 0 2px 6px rgba(255, 224, 102, 0.2); /* Subtle shadow */
-            transition: all 0.2s ease;
+            background-color: var(--yellow);
+            border-color: var(--yellow);
+            color: #000;
         }
         .btn-yellow:hover {
-            background-color: #f7d750; /* Slightly darker yellow on hover */
-            border-color: #f7d750;
-            box-shadow: 0 4px 10px rgba(255, 224, 102, 0.4);
+            background-color: #ffd43b;
+            border-color: #ffd43b;
+            color: #000;
         }
-        .btn-secondary {
-            background-color: #e9ecef; /* Lighter gray for secondary buttons */
-            border-color: #e9ecef;
-            color: var(--text-dark);
-            font-weight: 400;
-            padding: 0.6rem 1.5rem;
-            border-radius: 8px;
-            transition: all 0.2s ease;
-        }
-        .btn-secondary:hover {
-            background-color: #dee2e6;
-            border-color: #dee2e6;
-            color: var(--text-dark);
-        }
-        .btn-sm {
-            padding: 0.4rem 0.8rem; /* Smaller padding for small buttons */
-            font-size: 0.85rem;
-        }
-        .btn-link {
-            font-size: 0.95rem; /* Adjust font size for link buttons */
-        }
-        /* Cancel button styling */
-        #cancelBtn {
-            background-color: #f0f2f5;
-            border-color: #f0f2f5;
-            color: var(--text-dark);
-            font-weight: 500;
-            border-radius: 8px;
-            padding: 0.6rem 1.5rem;
-        }
-        #cancelBtn:hover {
-            background-color: #e2e6ea;
-            border-color: #e2e6ea;
-        }
-
-
-        /* Table Styling */
-        .table-container {
-            background-color: #fff;
-            border-radius: 12px;
-            box-shadow: 0 4px 15px var(--card-shadow);
-            overflow: hidden; /* Ensure rounded corners for table */
-        }
-        .table {
-            margin-bottom: 0; /* Remove margin from table */
-            border-radius: 12px; /* Apply border radius to table itself */
-            overflow: hidden;
-        }
-        .table thead {
-            background-color: var(--light-yellow); /* Yellow header */
-            color: var(--text-dark);
-            font-weight: 600;
-        }
-        .table th, .table td {
-            padding: 1rem 1.5rem; /* More padding for table cells */
-            vertical-align: middle;
-            border-bottom: 1px solid var(--border-light); /* Lighter border */
-        }
-        .table tbody tr:last-child td {
-            border-bottom: none; /* No border on last row */
-        }
-        .table-hover tbody tr:hover {
-            background-color: #fcfcfc; /* Subtle hover color */
-        }
-
-        /* Modal Styling */
-        .modal-content {
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.15);
-            border: none;
-        }
-        .modal-header {
-            border-bottom: 1px solid var(--border-light);
-            padding: 1.5rem;
-        }
-        .modal-title {
-            font-weight: 600;
-        }
-        .modal-body {
-            padding: 1.5rem;
-        }
-        #modalContent {
-            background-color: var(--bg-light);
+        .rounded-box {
+            background-color: #fff7d0;
             border-radius: 8px;
             padding: 1rem;
-            max-height: 400px;
-            overflow-y: auto;
-            border: 1px solid var(--border-light);
         }
-
+        #dropzone {
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            background-color: #fff;
+            cursor: pointer;
+        }
+        .modal-dialog {
+            max-width: 90vw;
+        }
+        #modalContent {
+            white-space: pre-wrap;
+            overflow-x: auto;
+        }
+        .rounded-box pre {
+        white-space: pre-wrap;  /* wrap long lines */
+        word-break: break-word; /* break long tokens if needed */
+        }
     </style>
 </head>
 <body>
-
-<div class="sidebar">
-    <div class="sidebar-logo">
-        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" class="bi bi-envelope-fill" viewBox="0 0 16 16">
-            <path d="M.05 3.555A2 2 0 0 1 2 2h12a2 2 0 0 1 1.95 1.555L8 8.414.05 3.555ZM0 4a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V3.555L8 8.414.05 3.555ZM0 4v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V4L8 8.414 0 4Z"/>
-        </svg>
-    </div>
-    <ul class="nav flex-column w-100 px-3">
-        <li class="nav-item mb-2">
-            <a class="nav-link active" href="#">
-                <i class="bi bi-upload me-2"></i> 편지 업로드
-            </a>
-        </li>
-        <li class="nav-item mb-2">
-            <a class="nav-link" href="#">
-                <i class="bi bi-search me-2"></i> OCR 검토
-            </a>
-        </li>
-        <li class="nav-item mb-2">
-            <a class="nav-link" href="#">
-                <i class="bi bi-list-ul me-2"></i> 항목 보기
-            </a>
-        </li>
-        <li class="nav-item mb-2">
-            <a class="nav-link" href="#">
-                <i class="bi bi-check-circle me-2"></i> 단계 확인
-            </a>
-        </li>
-    </ul>
-</div>
-
-<div class="main-content">
-    <h3 class="mb-2">편지 업로드</h3>
-    <p class="text-muted mb-4">손편지 이미지를 업로드하고, 한 통의 편지로 묶어주세요.</p>
-
-    <!-- File Upload Section -->
-    <div id="uploadSection" class="mb-5 card-panel">
-        <div id="dropzone">
-            <div class="icon-container">
-                <i class="bi bi-cloud-arrow-up-fill"></i>
-            </div>
-            <p class="mb-1">여기에 파일을 끌어다 놓으세요.</p>
-            <p>또는 <a href="#" id="selectFiles">여기를 클릭해서 파일을 찾아서 업로드하세요.</a></p>
-            <input type="file" id="fileInput" multiple accept="application/pdf,image/*" class="d-none">
+<div class="wrapper d-flex">
+    <nav class="sidebar p-3">
+        <div class="mb-4 text-center">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" class="bi bi-envelope" viewBox="0 0 16 16">
+                <path d="M0 4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V4z"/>
+                <path d="M.05 4.555L8 9.414l7.95-4.86A1 1 0 0 0 15 4H1a1 1 0 0 0-.95.555z"/>
+            </svg>
         </div>
+        <ul class="nav flex-column">
+            <li class="nav-item mb-2">
+                <a class="nav-link active rounded" href="#">편지 업로드</a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link" href="#">OCR 검토</a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link" href="#">항목 보기</a>
+            </li>
+            <li class="nav-item mb-2">
+                <a class="nav-link" href="#">단계 확인</a>
+            </li>
+        </ul>
+    </nav>
+    <div class="flex-grow-1 p-4">
+        <h3 class="mb-3">편지 업로드</h3>
+        <p class="text-muted">손편지 이미지를 업로드하고, 한 통의 편지로 묶어주세요.</p>
 
-        <div class="mt-4">
-            <!-- Progress indicators, initially hidden -->
-            <div class="progress d-none" id="uploadProgress">
+        <div class="mb-4">
+            <div id="dropzone" class="p-5 text-center">
+                <div class="mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="var(--yellow)" class="bi bi-upload" viewBox="0 0 16 16">
+                        <path d="M.5 9.9a.5.5 0 0 1 .5-.5h3.6v-7.3a.5.5 0 0 1 1 0v7.3h3.6a.5.5 0 0 1 .4.8l-4.4 4.4a.5.5 0 0 1-.7 0L.6 10.3a.5.5 0 0 1-.1-.4z"/>
+                        <path d="M.5 15.5a.5.5 0 0 1 .5-.5h14a.5.5 0 0 1 0 1H1a.5.5 0 0 1-.5-.5z"/>
+                    </svg>
+                </div>
+                <p class="mb-1">여기에 파일을 끌어다 놓으세요.</p>
+                <p>또는 <a href="#" id="selectFiles">여기를 클릭해서 파일을 찾아서 업로드하세요.</a></p>
+                <input type="file" id="fileInput" multiple accept="application/pdf,image/*" class="d-none">
+            </div>
+            <div class="progress mt-3 d-none" id="uploadProgress">
                 <div class="progress-bar" role="progressbar" style="width:0%"></div>
             </div>
-            <div class="d-flex justify-content-between align-items-center mt-2 d-none" id="progressInfo">
-                <span id="progressText" class="text-muted"></span>
-                <button id="cancelBtn" class="btn btn-secondary btn-sm d-none">취소</button>
-            </div>
+            <div class="mt-2 d-none" id="progressText"></div>
+            <button id="cancelBtn" class="btn btn-light mt-2 d-none">취소</button>
         </div>
-    </div>
 
-    <!-- Prompts Section -->
-    <div class="row mb-5">
-        <div class="col-md-6 mb-3">
-            <div class="prompt-box">
-                <h6>PII 프롬프트</h6>
-                <pre th:text="${piiPrompt}"></pre>
-            </div>
-        </div>
-        <div class="col-md-6 mb-3">
-            <div class="prompt-box">
-                <h6>분석 프롬프트</h6>
-                <pre th:text="${analysisPrompt}"></pre>
-            </div>
-        </div>
-    </div>
-
-    <!-- Letters Table Section -->
-    <h4 class="mb-3">업로드된 편지</h4>
-    <div class="table-container">
-        <table class="table table-hover align-middle">
-            <thead>
-            <tr>
-                <th>제목</th>
-                <th>위험 점수</th>
-                <th>작업</th>
-            </tr>
-            </thead>
-            <tbody>
-            <!-- Check if letters list is empty and display a message or hide table -->
-            <tr th:if="${#lists.isEmpty(letters)}">
-                <td colspan="3" class="text-center text-muted py-4">아직 업로드된 편지가 없습니다.</td>
-            </tr>
-            <tr th:each="letter : ${letters}">
-                <td th:text="${letter.s3Key}"></td>
-                <td th:text="${letter.dangerScore}"></td>
-                <td>
-                    <div class="d-flex flex-wrap gap-2"> <!-- Increased gap for buttons -->
-                        <button type="button" class="btn btn-yellow btn-sm view-btn" th:attr="data-content=${letter.ocrText}">OCR</button>
-                        <button type="button" class="btn btn-yellow btn-sm view-btn" th:attr="data-content=${letter.llmRefinedText}">정제</button> <!-- Changed from Clean to 정제 -->
-                        <button type="button" class="btn btn-yellow btn-sm view-btn" th:attr="data-content=${letter.rationale}">근거</button> <!-- Changed from Rationale to 근거 -->
-                        <button type="button" class="btn btn-secondary btn-sm" th:onclick="|triggerAction(${letter.id}, 'ocr')|">OCR 실행</button>
-                        <button type="button" class="btn btn-secondary btn-sm" th:onclick="|triggerAction(${letter.id}, 'pii-removal')|">PII 제거</button>
-                        <button type="button" class="btn btn-secondary btn-sm" th:onclick="|triggerAction(${letter.id}, 'analysis')|">분석</button>
-                    </div>
-                </td>
-            </tr>
-            </tbody>
-        </table>
-    </div>
-
-
-    <!-- Content Modal (remains largely the same) -->
-    <div class="modal fade" tabindex="-1" id="contentModal" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">내용</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        <div class="row mb-3">
+            <div class="col-md-6 mb-2">
+                <div class="rounded-box pre h-100">
+                    <h6>PII 프롬프트</h6>
+                    <pre class="mb-0" th:text="${piiPrompt}"></pre>
                 </div>
-                <div class="modal-body">
-                    <pre id="modalContent"></pre>
+            </div>
+            <div class="col-md-6 mb-2">
+                <div class="rounded-box pre h-100">
+                    <h6>분석 프롬프트</h6>
+                    <pre class="mb-0" th:text="${analysisPrompt}"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- Make table scrollable on overflow -->
+        <div class="table-responsive">
+            <table class="table table-hover align-middle">
+                <thead style="background-color:#fff7d0;">
+                <tr>
+                    <th>ID</th>
+                    <th>위험 점수</th>
+                    <th>오탐 점수</th>
+                    <th>작업</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="letter : ${letters}">
+                    <td th:text="${letter.id}"></td>
+                    <td th:text="${letter.dangerScore}"></td>
+                    <td th:text="${letter.falsePositiveScore}"></td>
+                    <td>
+                        <div class="d-flex flex-wrap gap-1">
+                            <button type="button" class="btn btn-yellow btn-sm view-btn" th:attr="data-content=${letter.ocrText}">OCR</button>
+                            <button type="button" class="btn btn-yellow btn-sm view-btn" th:attr="data-content=${letter.llmRefinedText}">Clean</button>
+                            <button type="button" class="btn btn-yellow btn-sm view-btn" th:attr="data-content=${letter.rationale}">Rationale</button>
+                            <button type="button" class="btn btn-secondary btn-sm" th:onclick="|triggerAction(${letter.id}, 'ocr', this)|">OCR 실행</button>
+                            <button type="button" class="btn btn-secondary btn-sm" th:onclick="|triggerAction(${letter.id}, 'pii-removal', this)|">PII 제거</button>
+                            <button type="button" class="btn btn-secondary btn-sm" th:onclick="|triggerAction(${letter.id}, 'analysis', this)|">분석</button>
+                            <button type="button" class="btn btn-secondary btn-sm" th:onclick="|updateManualReview(${letter.id})|">검토완료</button>
+                        </div>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <!-- /table-responsive -->
+
+        <div class="modal fade" tabindex="-1" id="contentModal">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">내용</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <pre id="modalContent"></pre>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Bootstrap Bundle with Popper -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
-        // --- Modal & Action Triggering ---
-        document.querySelectorAll('.view-btn').forEach(btn => {
-            btn.addEventListener('click', () => showContent(btn.getAttribute('data-content')));
-        });
-
-        function showContent(text){
-            document.getElementById('modalContent').textContent = text || '';
-            const contentModal = new bootstrap.Modal(document.getElementById('contentModal'));
-            contentModal.show();
+    document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.addEventListener('click', () => showContent(btn.getAttribute('data-content')));
+    });
+    function showContent(text){
+        document.getElementById('modalContent').textContent = text || '';
+        new bootstrap.Modal(document.getElementById('contentModal')).show();
+    }
+    function triggerAction(id, action, btn){
+        if(btn){
+            btn.disabled = true;
+            btn.dataset.originalText = btn.textContent;
+            btn.textContent = '처리중...';
         }
+        fetch(`/letters/`+id+`/trigger-`+action, {method:'POST'})
+            .then(() => location.reload());
+    }
 
-        function triggerAction(id, action){
-            // Optimistic UI update or disable button while loading
-            const button = event.target; // Get the button that was clicked
-            button.disabled = true;
-            button.textContent = '처리 중...'; // Indicate loading
+    function updateManualReview(id){
+        fetch(`/letters/`+id+`/manual-review?humanReviewedDanger=true`, {method:'PUT'})
+            .then(() => location.reload());
+    }
 
-            fetch(`/letters/${id}/trigger-${action}`, {method:'POST'})
-                .then(response => {
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    return response.json(); // Assuming backend returns some JSON success
-                })
-                .then(data => {
-                    // console.log('Action triggered successfully:', data);
-                    location.reload(); // Reload the page to see updated data
-                })
-                .catch(error => {
-                    console.error('Error triggering action:', error);
-                    alert('작업 실행 중 오류가 발생했습니다: ' + error.message);
-                    button.disabled = false; // Re-enable button on error
-                    button.textContent = '재시도'; // Offer retry
-                });
+    const dropzone = document.getElementById('dropzone');
+    const fileInput = document.getElementById('fileInput');
+    const progressBar = document.querySelector('#uploadProgress .progress-bar');
+    const progressContainer = document.getElementById('uploadProgress');
+    const progressText = document.getElementById('progressText');
+    const cancelBtn = document.getElementById('cancelBtn');
+    let cancel = false;
+
+    document.getElementById('selectFiles').addEventListener('click', (e)=>{
+        e.preventDefault();
+        fileInput.click();
+    });
+
+    dropzone.addEventListener('dragover', e => {
+        e.preventDefault();
+        dropzone.classList.add('border-primary');
+    });
+    dropzone.addEventListener('dragleave', () => {
+        dropzone.classList.remove('border-primary');
+    });
+    dropzone.addEventListener('drop', e => {
+        e.preventDefault();
+        dropzone.classList.remove('border-primary');
+        handleFiles(e.dataTransfer.files);
+    });
+    fileInput.addEventListener('change', () => handleFiles(fileInput.files));
+
+    function handleFiles(files){
+        if(!files.length) return;
+        cancel = false;
+        progressContainer.classList.remove('d-none');
+        progressText.classList.remove('d-none');
+        cancelBtn.classList.remove('d-none');
+        uploadFiles(Array.from(files));
+    }
+
+    async function uploadFiles(files){
+        const total = files.length;
+        for(let i=0;i<files.length;i++){
+            if(cancel) break;
+            progressText.textContent = `${total}개 파일중 ${i+1}개 파일업로드중이에요. 잠시만 기다려주세요.`;
+            const form = new FormData();
+            form.append('file', files[i]);
+            await fetch('/storage/upload', {method:'POST', body: form});
+            progressBar.style.width = `${((i+1)/total)*100}%`;
         }
-        // Expose triggerAction to the global scope for th:onclick
-        window.triggerAction = triggerAction;
+        location.reload();
+    }
 
-
-        // --- File Upload Logic ---
-        const dropzone = document.getElementById('dropzone');
-        const fileInput = document.getElementById('fileInput');
-        const progressBar = document.querySelector('#uploadProgress .progress-bar');
-        const progressContainer = document.getElementById('uploadProgress');
-        const progressInfo = document.getElementById('progressInfo'); // New container for text and cancel btn
-        const progressText = document.getElementById('progressText');
-        const cancelBtn = document.getElementById('cancelBtn');
-        let cancelUpload = false; // Renamed to avoid conflict
-
-        // Trigger file input click
-        document.getElementById('selectFiles').addEventListener('click', (e)=>{
-            e.preventDefault();
-            fileInput.click();
-        });
-
-        // Drag and Drop events
-        dropzone.addEventListener('dragover', e => {
-            e.preventDefault();
-            dropzone.classList.add('highlight');
-        });
-        dropzone.addEventListener('dragleave', () => {
-            dropzone.classList.remove('highlight');
-        });
-        dropzone.addEventListener('drop', e => {
-            e.preventDefault();
-            dropzone.classList.remove('highlight');
-            handleFiles(e.dataTransfer.files);
-        });
-
-        // File input change event
-        fileInput.addEventListener('change', () => handleFiles(fileInput.files));
-
-        function handleFiles(files){
-            if(!files.length) return;
-
-            cancelUpload = false;
-            progressContainer.classList.remove('d-none');
-            progressInfo.classList.remove('d-none');
-            cancelBtn.classList.remove('d-none'); // Ensure cancel button is shown
-
-            // Reset progress bar
-            progressBar.style.width = '0%';
-            progressBar.textContent = '0%';
-
-            uploadFiles(Array.from(files));
-        }
-
-        async function uploadFiles(files){
-            const total = files.length;
-            for(let i=0;i<files.length;i++){
-                if(cancelUpload) {
-                    console.log('Upload cancelled by user.');
-                    break;
-                }
-
-                progressText.textContent = `${total}개 파일중 ${i+1}개 파일 업로드 중... 잠시만 기다려주세요.`;
-                const progressPercentage = Math.round(((i + 1) / total) * 100);
-                progressBar.style.width = `${progressPercentage}%`;
-                progressBar.textContent = `${progressPercentage}%`;
-
-
-                const form = new FormData();
-                form.append('file', files[i]);
-
-                try {
-                    const response = await fetch('/storage/upload', {method:'POST', body: form});
-                    if (!response.ok) {
-                        throw new Error(`파일 업로드 실패: HTTP 상태 ${response.status}`);
-                    }
-                    // Optionally, process response for each file if needed
-                } catch (error) {
-                    console.error(`Error uploading file ${files[i].name}:`, error);
-                    progressText.textContent = `오류 발생: ${files[i].name} 업로드 실패.`;
-                    // Consider breaking or showing error for individual file
-                }
-            }
-            // After all files attempt to upload
-            if (!cancelUpload) {
-                progressText.textContent = `모든 파일 업로드 완료.`;
-                progressBar.style.width = '100%';
-                progressBar.textContent = '100%';
-                setTimeout(() => {
-                    location.reload(); // Refresh page to show new files
-                }, 1000); // Give user a moment to see 100% complete
-            } else {
-                location.reload(); // Reload to reset UI after manual cancel
-            }
-        }
-
-        cancelBtn.addEventListener('click', ()=>{
-            cancelUpload = true;
-            progressText.textContent = '업로드 취소 중...';
-            // No need to reload immediately, let the loop finish or break
-        });
+    cancelBtn.addEventListener('click', ()=>{
+        cancel = true;
+        location.reload();
     });
 </script>
 </body>
